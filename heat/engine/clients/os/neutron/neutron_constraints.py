@@ -116,6 +116,16 @@ class FlowClassifierConstraint(NeutronExtConstraint):
     extension = 'sfc'
 
 
+class TapServiceConstraint(NeutronExtConstraint):
+    resource_name = 'tap_service'
+    extension = 'taas'
+
+
+class TapFlowConstraint(NeutronExtConstraint):
+    resource_name = 'tap_flow'
+    extension = 'taas'
+
+
 class ProviderConstraint(constraints.BaseCustomConstraint):
 
     expected_exceptions = (exception.StackValidationFailed,)
