@@ -28,6 +28,9 @@ from heat.engine import translation
 
 LOG = logging.getLogger(__name__)
 
+PCI_FORMAT_REGEX = r"^[0-9a-fA-F]{4}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}.[0-9a-fA-F]$"
+PCI_VENDOR_INFO_REGEX = r"^[0-9a-fA-F]{4}:[0-9a-fA-F]{4}$"
+COMMA_SEPARATED_LIST_REGEX = r"^([0-9]+(-[0-9]+)?)(,([0-9]+(-[0-9]+)?))*$"
 
 class Port(neutron.NeutronResource):
     """A resource for managing Neutron ports.
@@ -43,9 +46,16 @@ class Port(neutron.NeutronResource):
     PROPERTIES = (
         NAME, NETWORK_ID, NETWORK, FIXED_IPS, SECURITY_GROUPS,
         REPLACEMENT_POLICY, DEVICE_ID, DEVICE_OWNER, DNS_NAME,
+        VF_VLAN_FILTER, VF_PUBLIC_VLANS, VF_PRIVATE_VLANS,
+        VF_GUEST_VLANS, VF_VLAN_MIRROR, VF_PCI_SLOT, PF_PCI_SLOT,
+        PF_PCI_VENDOR_INFO, PF_PHYSICAL_NETWORK,
+
     ) = (
         'name', 'network_id', 'network', 'fixed_ips', 'security_groups',
         'replacement_policy', 'device_id', 'device_owner', 'dns_name',
+        'vf_vlan_filter', 'vf_public_vlans', 'vf_private_vlans',
+        'vf_guest_vlans', 'vf_vlan_mirror', 'vf_pci_slot', 'pf_pci_slot',
+        'pf_pci_vendor_info', 'pf_physical_network',
     )
 
     EXTRA_PROPERTIES = (
@@ -201,6 +211,137 @@ class Port(neutron.NeutronResource):
             constraints=[
                 constraints.CustomConstraint('dns_name')
             ],
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        VF_VLAN_FILTER: properties.Schema(
+            properties.Schema.LIST,
+            _('List of VLANs configured on VF.'
+              'Non-trunk VF: contains the respective VLAN tags '
+              'Trunk VF: set to 0.'),
+            update_allowed=True,
+            constraints=[
+                # at least one entry required
+                constraints.Length(min=1),
+            ],
+            schema=properties.Schema(
+                # type is string, because we are expected
+                # to accept both integers and
+                # ranges such as 30-33, that has to be
+                # expanded to 30, 31, 32, 33
+                properties.Schema.STRING
+            ),
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        VF_PUBLIC_VLANS: properties.Schema(
+            properties.Schema.LIST,
+            _('VLANs allowed by the VF that needs to be configured on Fabric'
+              'Will be empty if there is no public vlan to be configured'
+              'Non-trunk VF: contains the respective VLAN (single VLAN)'
+              'Trunk VF: may contain a list of VLANs.'),
+            update_allowed=True,
+            constraints=[
+                # at least one entry required
+                constraints.Length(min=1),
+            ],
+            schema=properties.Schema(
+                # type is string, because we are expected
+                # to accept both integers and
+                # ranges such as 30-33, that has to be
+                # expanded to 30, 31, 32, 33
+                properties.Schema.STRING
+            ),
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        VF_PRIVATE_VLANS: properties.Schema(
+            properties.Schema.LIST,
+            _('VLANs allowed by the VF that are not visible to the Fabric'
+              'Will be empty if there is no private vlan to be configured'
+              'Non-trunk VF: contains the respective VLAN (single VLAN)'
+              'Trunk VF: may contain a list of VLANs.'),
+            update_allowed=True,
+            constraints=[
+                # at least one entry required
+                constraints.Length(min=1),
+            ],
+            schema=properties.Schema(
+                # type is string, because we are expected
+                # to accept both integers and
+                # ranges such as 30-33, that has to be
+                # expanded to 30, 31, 32, 33
+                properties.Schema.STRING
+            ),
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        VF_GUEST_VLANS: properties.Schema(
+            properties.Schema.LIST,
+            _('Union of public_vlans and private_vlans'
+              'Should be specififed only for trunk VFs for tenant VMs.'),
+            update_allowed=True,
+            constraints=[
+                # at least one entry required
+                constraints.Length(min=1),
+            ],
+            schema=properties.Schema(
+                # type is string, because we are expected
+                # to accept both integers and
+                # ranges such as 30-33, that has to be
+                # expanded to 30, 31, 32, 33
+                properties.Schema.STRING
+            ),
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        VF_VLAN_MIRROR: properties.Schema(
+            properties.Schema.LIST,
+            _('Comma separated list of VLANs, data for which needs to be '
+              'captured on probe VM. Applicable just for Tap Service Ports.'),
+            update_allowed=True,
+            constraints=[
+                # at least one entry required
+                constraints.Length(min=1),
+            ],
+            schema=properties.Schema(
+                # type is string, because we are expected
+                # to accept both integers and
+                # ranges such as 30-33, that has to be
+                # expanded to 30, 31, 32, 33
+                properties.Schema.STRING
+            ),
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        VF_PCI_SLOT: properties.Schema(
+            properties.Schema.STRING,
+            _('VF PCI Slot ID.'),
+            update_allowed=True,
+            constraints=[
+                constraints.Length(max=12),
+                constraints.AllowedPattern(PCI_FORMAT_REGEX),
+            ],
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        PF_PCI_SLOT: properties.Schema(
+            properties.Schema.STRING,
+            _('VF PCI Slot ID.'),
+            update_allowed=True,
+            constraints=[
+                constraints.Length(max=12),
+                constraints.AllowedPattern(PCI_FORMAT_REGEX),
+            ],
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        PF_PCI_VENDOR_INFO: properties.Schema(
+            properties.Schema.STRING,
+            _('VF PCI Vendor Info.'),
+            update_allowed=True,
+            constraints=[
+                constraints.Length(max=9),
+                constraints.AllowedPattern(PCI_VENDOR_INFO_REGEX),
+            ],
+            support_status=support.SupportStatus(version='7.0.0'),
+        ),
+        PF_PHYSICAL_NETWORK: properties.Schema(
+            properties.Schema.STRING,
+            _('PF Physical Network name.'),
+            update_allowed=True,
             support_status=support.SupportStatus(version='7.0.0'),
         ),
     }
@@ -470,6 +611,23 @@ class Port(neutron.NeutronResource):
 
         if self.REPLACEMENT_POLICY in props:
             del(props[self.REPLACEMENT_POLICY])
+
+        binding_profile_dict = {}
+        for prop in [self.VF_VLAN_FILTER,
+                     self.VF_PUBLIC_VLANS,
+                     self.VF_PRIVATE_VLANS,
+                     self.VF_GUEST_VLANS,
+                     self.VF_VLAN_MIRROR,
+                     self.VF_PCI_SLOT,
+                     self.PF_PCI_SLOT,
+                     self.PF_PCI_VENDOR_INFO,
+                     self.PF_PHYSICAL_NETWORK]:
+            if props.get(prop) is not None:
+                binding_profile_dict[prop] = props[prop]
+                del props[prop]
+        # if any items in binding_profile_dict -> insert binding:profile field
+        if binding_profile_dict:
+            props["binding:profile"] = binding_profile_dict
 
     def _show_resource(self):
         return self.client().show_port(
