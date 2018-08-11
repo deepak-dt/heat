@@ -214,98 +214,58 @@ class Port(neutron.NeutronResource):
             support_status=support.SupportStatus(version='7.0.0'),
         ),
         VF_VLAN_FILTER: properties.Schema(
-            properties.Schema.LIST,
+            properties.Schema.STRING,
             _('List of VLANs configured on VF.'
               'Non-trunk VF: contains the respective VLAN tags '
               'Trunk VF: set to 0.'),
             update_allowed=True,
             constraints=[
-                # at least one entry required
-                constraints.Length(min=1),
+                constraints.AllowedPattern(COMMA_SEPARATED_LIST_REGEX),
             ],
-            schema=properties.Schema(
-                # type is string, because we are expected
-                # to accept both integers and
-                # ranges such as 30-33, that has to be
-                # expanded to 30, 31, 32, 33
-                properties.Schema.STRING
-            ),
             support_status=support.SupportStatus(version='7.0.0'),
         ),
         VF_PUBLIC_VLANS: properties.Schema(
-            properties.Schema.LIST,
+            properties.Schema.STRING,
             _('VLANs allowed by the VF that needs to be configured on Fabric'
               'Will be empty if there is no public vlan to be configured'
               'Non-trunk VF: contains the respective VLAN (single VLAN)'
               'Trunk VF: may contain a list of VLANs.'),
             update_allowed=True,
             constraints=[
-                # at least one entry required
-                constraints.Length(min=1),
+                constraints.AllowedPattern(COMMA_SEPARATED_LIST_REGEX),
             ],
-            schema=properties.Schema(
-                # type is string, because we are expected
-                # to accept both integers and
-                # ranges such as 30-33, that has to be
-                # expanded to 30, 31, 32, 33
-                properties.Schema.STRING
-            ),
             support_status=support.SupportStatus(version='7.0.0'),
         ),
         VF_PRIVATE_VLANS: properties.Schema(
-            properties.Schema.LIST,
+            properties.Schema.STRING,
             _('VLANs allowed by the VF that are not visible to the Fabric'
               'Will be empty if there is no private vlan to be configured'
               'Non-trunk VF: contains the respective VLAN (single VLAN)'
               'Trunk VF: may contain a list of VLANs.'),
             update_allowed=True,
             constraints=[
-                # at least one entry required
-                constraints.Length(min=1),
+                constraints.AllowedPattern(COMMA_SEPARATED_LIST_REGEX),
             ],
-            schema=properties.Schema(
-                # type is string, because we are expected
-                # to accept both integers and
-                # ranges such as 30-33, that has to be
-                # expanded to 30, 31, 32, 33
-                properties.Schema.STRING
-            ),
             support_status=support.SupportStatus(version='7.0.0'),
         ),
         VF_GUEST_VLANS: properties.Schema(
-            properties.Schema.LIST,
+            properties.Schema.STRING,
             _('Union of public_vlans and private_vlans'
               'Should be specififed only for trunk VFs for tenant VMs.'),
             update_allowed=True,
             constraints=[
-                # at least one entry required
-                constraints.Length(min=1),
+                constraints.AllowedPattern(COMMA_SEPARATED_LIST_REGEX),
             ],
-            schema=properties.Schema(
-                # type is string, because we are expected
-                # to accept both integers and
-                # ranges such as 30-33, that has to be
-                # expanded to 30, 31, 32, 33
-                properties.Schema.STRING
-            ),
             support_status=support.SupportStatus(version='7.0.0'),
         ),
         VF_VLAN_MIRROR: properties.Schema(
-            properties.Schema.LIST,
+            properties.Schema.STRING,
             _('Comma separated list of VLANs, data for which needs to be '
               'captured on probe VM. Applicable just for Tap Service Ports.'),
             update_allowed=True,
             constraints=[
-                # at least one entry required
-                constraints.Length(min=1),
+                constraints.AllowedPattern(COMMA_SEPARATED_LIST_REGEX),
             ],
-            schema=properties.Schema(
-                # type is string, because we are expected
-                # to accept both integers and
-                # ranges such as 30-33, that has to be
-                # expanded to 30, 31, 32, 33
-                properties.Schema.STRING
-            ),
             support_status=support.SupportStatus(version='7.0.0'),
         ),
         VF_PCI_SLOT: properties.Schema(
