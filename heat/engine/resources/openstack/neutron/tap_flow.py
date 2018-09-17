@@ -21,6 +21,8 @@ from heat.engine.resources.openstack.neutron import neutron
 from heat.engine import support
 from heat.engine import translation
 
+COMMA_SEPARATED_LIST_REGEX = r"^([0-9]+(-[0-9]+)?)(,([0-9]+(-[0-9]+)?))*$"
+
 
 class TapFlow(neutron.NeutronResource):
     """A resource for neutron tap-as-a-service tap-flow.
@@ -39,9 +41,10 @@ class TapFlow(neutron.NeutronResource):
     support_status = support.SupportStatus(version='7.0.0')
 
     PROPERTIES = (
-        NAME, DESCRIPTION, PORT, TAP_SERVICE, DIRECTION
+        NAME, DESCRIPTION, PORT, TAP_SERVICE, DIRECTION, VLAN_MIRROR
         ) = (
         'name', 'description', 'port', 'tap_service', 'direction',
+        'vlan_mirror'
     )
 
     properties_schema = {
@@ -74,6 +77,14 @@ class TapFlow(neutron.NeutronResource):
             constraints=[
                 constraints.AllowedValues(['IN', 'OUT', 'BOTH']),
             ]
+        ),
+        VLAN_MIRROR: properties.Schema(
+            properties.Schema.STRING,
+            _('Comma separated list of VLANs, data for which needs to be '
+              'captured on probe VM.'),
+            constraints=[
+                constraints.AllowedPattern(COMMA_SEPARATED_LIST_REGEX),
+            ],
         ),
     }
 
@@ -110,6 +121,7 @@ class TapFlow(neutron.NeutronResource):
         to_client['source_port'] = props.get(self.PORT)
         to_client['tap_service_id'] = props.get(self.TAP_SERVICE)
         to_client['direction'] = props.get(self.DIRECTION)
+        to_client['vlan_mirror'] = props.get(self.VLAN_MIRROR)
         tap_flow = self.client_plugin().create_taas_resource('tap_flow',
                                                              to_client)
         self.resource_id_set(tap_flow['id'])
