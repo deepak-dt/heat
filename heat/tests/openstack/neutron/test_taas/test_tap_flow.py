@@ -30,7 +30,7 @@ sample_template = {
                 'port':  '6af055d3-26f6-48dd-a597-7611d7e58d35',
                 'tap_service':  '6af055d3-26f6-48dd-a597-7611d7e58d35',
                 'direction': 'BOTH',
-                'vlan_mirror': '1-5,9,18,27-30,99-108,4000-4095'
+                'vlan_filter': '1-5,9,18,27-30,99-108,4000-4095'
             }
         }
     }
@@ -101,7 +101,7 @@ class TapFlowTest(common.HeatTestCase):
         self.assertEqual(
             '1-5,9,18,27-30,99-108,4000-4095',
             self.test_resource.properties.get(
-                tap_flow.TapFlow.VLAN_MIRROR))
+                tap_flow.TapFlow.VLAN_FILTER))
 
         self.test_resource.data_set = mock.Mock()
         self.test_resource.handle_create()
@@ -113,7 +113,7 @@ class TapFlowTest(common.HeatTestCase):
                 'port': '6af055d3-26f6-48dd-a597-7611d7e58d35',
                 'tap_service': '6af055d3-26f6-48dd-a597-7611d7e58d35',
                 'direction': 'BOTH',
-                'vlan_mirror': '1-5,9,18,27-30,99-108,4000-4095',
+                'vlan_filter': '1-5,9,18,27-30,99-108,4000-4095',
             }
         )
 
@@ -159,7 +159,7 @@ class TapFlowTest(common.HeatTestCase):
                 '6af055d3-26f6-48dd-a597-7611d7e58d35',
             tap_flow.TapFlow.DIRECTION:
                 'BOTH',
-            tap_flow.TapFlow.VLAN_MIRROR:
+            tap_flow.TapFlow.VLAN_FILTER:
                 '1-5,9,18,27-30,99-108,4000-4095'
             }
         self.test_resource.handle_update(json_snippet=None,
@@ -174,5 +174,5 @@ class TapFlowTest(common.HeatTestCase):
                 'port': '6af055d3-26f6-48dd-a597-7611d7e58d35',
                 'tap_service': '6af055d3-26f6-48dd-a597-7611d7e58d35',
                 'direction': 'BOTH',
-                'vlan_mirror': '1-5,9,18,27-30,99-108,4000-4095',
+                'vlan_filter': '1-5,9,18,27-30,99-108,4000-4095',
             },  self.test_resource.resource_id)

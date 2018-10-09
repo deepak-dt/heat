@@ -41,10 +41,10 @@ class TapFlow(neutron.NeutronResource):
     support_status = support.SupportStatus(version='7.0.0')
 
     PROPERTIES = (
-        NAME, DESCRIPTION, PORT, TAP_SERVICE, DIRECTION, VLAN_MIRROR
+        NAME, DESCRIPTION, PORT, TAP_SERVICE, DIRECTION, VLAN_FILTER
         ) = (
         'name', 'description', 'port', 'tap_service', 'direction',
-        'vlan_mirror'
+        'vlan_filter'
     )
 
     properties_schema = {
@@ -78,7 +78,7 @@ class TapFlow(neutron.NeutronResource):
                 constraints.AllowedValues(['IN', 'OUT', 'BOTH']),
             ]
         ),
-        VLAN_MIRROR: properties.Schema(
+        VLAN_FILTER: properties.Schema(
             properties.Schema.STRING,
             _('Comma separated list of VLANs, data for which needs to be '
               'captured on probe VM.'),
@@ -121,7 +121,7 @@ class TapFlow(neutron.NeutronResource):
         to_client['source_port'] = props.get(self.PORT)
         to_client['tap_service_id'] = props.get(self.TAP_SERVICE)
         to_client['direction'] = props.get(self.DIRECTION)
-        to_client['vlan_mirror'] = props.get(self.VLAN_MIRROR)
+        to_client['vlan_filter'] = props.get(self.VLAN_FILTER)
         tap_flow = self.client_plugin().create_taas_resource('tap_flow',
                                                              to_client)
         self.resource_id_set(tap_flow['id'])
