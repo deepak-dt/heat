@@ -174,65 +174,37 @@ class NeutronClientPlugin(client_plugin.ClientPlugin):
             path = "/taas/tap_flows"
         return path
 
-    def create_sfc_resource(self, resource, props):
-        """Returns created sfc resource record."""
+    def create_ext_resource(self, resource, props):
+        """Returns created ext resource record."""
 
         path = self._resolve_resource_path(resource)
         record = self.client().create_ext(path, {resource: props}
                                           ).get(resource)
         return record
 
-    def update_sfc_resource(self, resource, prop_diff, resource_id):
-        """Returns updated sfc resource record."""
+    def update_ext_resource(self, resource, prop_diff, resource_id):
+        """Returns updated ext resource record."""
 
         path = self._resolve_resource_path(resource)
         return self.client().update_ext(path + '/%s', resource_id,
                                         {resource: prop_diff})
 
-    def delete_sfc_resource(self, resource, resource_id):
-        """Deletes sfc resource record and returns status."""
+    def delete_ext_resource(self, resource, resource_id):
+        """Deletes ext resource record and returns status."""
 
         path = self._resolve_resource_path(resource)
         return self.client().delete_ext(path + '/%s', resource_id)
 
-    def show_sfc_resource(self, resource, resource_id):
-        """Returns specific sfc resource record."""
+    def show_ext_resource(self, resource, resource_id):
+        """Returns specific ext resource record."""
 
         path = self._resolve_resource_path(resource)
         return self.client().show_ext(path + '/%s', resource_id
                                       ).get(resource)
 
-    def create_taas_resource(self, resource, props):
-        """Returns created taas resource record."""
-
-        path = self._resolve_resource_path(resource)
-        record = self.client().create_ext(path, {resource: props}
-                                          ).get(resource)
-        return record
-
-    def update_taas_resource(self, resource, prop_diff, resource_id):
-        """Returns updated taas resource record."""
-
-        path = self._resolve_resource_path(resource)
-        return self.client().update_ext(path + '/%s', resource_id,
-                                        {resource: prop_diff})
-
-    def delete_taas_resource(self, resource, resource_id):
-        """Deletes taas resource record and returns status."""
-
-        path = self._resolve_resource_path(resource)
-        return self.client().delete_ext(path + '/%s', resource_id)
-
-    def show_taas_resource(self, resource, resource_id):
-        """Returns specific taas resource record."""
-
-        path = self._resolve_resource_path(resource)
-        return self.client().show_ext(path + '/%s', resource_id
-                                      ).get(resource)
-
-    def check_taas_resource_status(self, resource, resource_id):
-        taas_resource = self.show_taas_resource(resource, resource_id)
-        status = taas_resource['status']
+    def check_ext_resource_status(self, resource, resource_id):
+        ext_resource = self.show_ext_resource(resource, resource_id)
+        status = ext_resource['status']
         if status == 'ERROR':
             raise exception.ResourceInError(resource_status=status)
         return status == 'ACTIVE'

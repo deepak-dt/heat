@@ -11,8 +11,6 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from neutronclient.common import exceptions
-
 from heat.common import exception
 from heat.common.i18n import _
 from heat.engine import constraints
@@ -76,8 +74,8 @@ class TapService(neutron.NeutronResource):
         ]
 
     def _show_resource(self):
-        return self.client_plugin().show_taas_resource('tap_service',
-                                                       self.resource_id)
+        return self.client_plugin().show_ext_resource('tap_service',
+                                                      self.resource_id)
 
     def handle_create(self):
         props = self.prepare_properties(self.properties,
@@ -87,31 +85,31 @@ class TapService(neutron.NeutronResource):
         props_to_client['name'] = props.get(self.NAME)
         props_to_client['description'] = props.get(self.DESCRIPTION)
         props_to_client['port_id'] = props.get(self.PORT)
-        ts = self.client_plugin().create_taas_resource('tap_service',
-                                                       props_to_client)
+        ts = self.client_plugin().create_ext_resource('tap_service',
+                                                      props_to_client)
         self.resource_id_set(ts['id'])
 
     def handle_update(self, json_snippet, tmpl_diff, prop_diff):
         if prop_diff:
             self.prepare_update_properties(prop_diff)
-            self.client_plugin().update_taas_resource('tap_service',
-                                                      prop_diff,
-                                                      self.resource_id)
+            self.client_plugin().update_ext_resource('tap_service',
+                                                     prop_diff,
+                                                     self.resource_id)
 
     def handle_delete(self):
         if self.resource_id is None:
             return
         with self.client_plugin().ignore_not_found:
-                self.client_plugin().delete_taas_resource('tap_service',
-                                                          self.resource_id)
+                self.client_plugin().delete_ext_resource('tap_service',
+                                                         self.resource_id)
 
     def check_create_complete(self, data):
-        return self.client_plugin().check_taas_resource_status(
+        return self.client_plugin().check_ext_resource_status(
             'tap_service', self.resource_id)
 
     def check_update_complete(self, prop_diff):
         if prop_diff:
-            return self.client_plugin().check_taas_resource_status(
+            return self.client_plugin().check_ext_resource_status(
                 'tap_service', self.resource_id)
         return True
 
@@ -119,21 +117,19 @@ class TapService(neutron.NeutronResource):
         if self.resource_id is None:
             return True
 
-        try:
+        with self.client_plugin().ignore_not_found:
             try:
-                if self.client_plugin().check_taas_resource_status(
+                if self.client_plugin().check_ext_resource_status(
                         'tap_service', self.resource_id):
-                    self.client_plugin().delete_taas_resource(
+                    self.client_plugin().delete_ext_resource(
                         'tap_service', self.resource_id)
             except exception.ResourceInError:
-                # Still try to delete loadbalancer in error state
-                self.client_plugin().delete_taas_resource('tap_service',
-                                                          self.resource_id)
-        except exceptions.NotFound:
-            # Resource is gone
-            return True
+                # Still try to delete tap resource in error state
+                self.client_plugin().delete_ext_resource('tap_service',
+                                                         self.resource_id)
+            return False
 
-        return False
+        return True
 
 
 def resource_mapping():
