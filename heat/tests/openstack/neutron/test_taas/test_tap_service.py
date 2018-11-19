@@ -23,7 +23,7 @@ sample_template = {
     'heat_template_version': '2016-04-08',
     'resources': {
         'test_resource': {
-            'type': 'OS::Neutron::TapService',
+            'type': 'OS::Neutron::TaaS::TapService',
             'properties': {
                 'name': 'test_tap_service',
                 'description': 'desc',
@@ -33,7 +33,7 @@ sample_template = {
     }
 }
 
-RESOURCE_TYPE = 'OS::Neutron::TapService'
+RESOURCE_TYPE = 'OS::Neutron::TaaS::TapService'
 
 
 class TapServiceTest(common.HeatTestCase):
@@ -63,7 +63,7 @@ class TapServiceTest(common.HeatTestCase):
     def test_resource_mapping(self):
         mapping = tap_service.resource_mapping()
         self.assertEqual(tap_service.TapService,
-                         mapping['OS::Neutron::TapService'])
+                         mapping['OS::Neutron::TaaS::TapService'])
 
     def _get_mock_resource(self):
         value = mock.MagicMock()
