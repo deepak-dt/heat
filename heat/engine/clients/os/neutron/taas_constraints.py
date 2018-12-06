@@ -20,13 +20,11 @@ CLIENT_NAME = 'neutron'
 
 class TapServiceConstraint(nc.NeutronExtConstraint):
     resource_name = 'tap_service'
-    cmd_resource = 'taas_tap_service'
     extension = 'taas'
 
 
 class TapFlowConstraint(nc.NeutronExtConstraint):
     resource_name = 'tap_flow'
-    cmd_resource = 'taas_tap_flow'
     extension = 'taas'
 
 

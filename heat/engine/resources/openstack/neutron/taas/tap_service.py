@@ -47,11 +47,13 @@ class TapService(neutron.NeutronResource):
         NAME: properties.Schema(
             properties.Schema.STRING,
             _('Name for the Tap-Service.'),
+            default="",
             update_allowed=True
         ),
         DESCRIPTION: properties.Schema(
             properties.Schema.STRING,
             _('Description for the Tap-Service.'),
+            default="",
             update_allowed=True
         ),
         PORT: properties.Schema(

@@ -51,11 +51,13 @@ class TapFlow(neutron.NeutronResource):
         NAME: properties.Schema(
             properties.Schema.STRING,
             _('Name for the Tap-Flow.'),
+            default="",
             update_allowed=True
         ),
         DESCRIPTION: properties.Schema(
             properties.Schema.STRING,
             _('Description for the Tap-Flow.'),
+            default="",
             update_allowed=True
         ),
         PORT: properties.Schema(
